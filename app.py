@@ -21,7 +21,7 @@ translations = {
         "medium": "மிதமான அபாயம் (MEDIUM RISK)",
         "high": "அதிக அபாயம் (HIGH RISK)",
         "action_high": "பணத்தை அனுப்ப வேண்டாம். உடனடியாக இந்த எண்ணை தடுக்கவும் (Block).",
-        "action_safe": "எந்த சந்தேகத்திற்க இடமான செயல்பாடும் இல்லை."
+        "action_safe": "எந்த சந்தேகத்திற்கு இடமான செயல்பாடும் இல்லை."
     },
     "en": {
         "title": "🚨 Scam Detector App",
@@ -147,10 +147,27 @@ st.title(t["title"])
 st.caption(t["sub_title"])
 st.divider()
 
-# Input UI
+# Input Type Selection
 input_type = st.radio("Detection Type:", ["💬 Message", "💳 Transaction", "📞 Call Transcript"], horizontal=True)
-user_input = st.text_area(t["input_label"], height=100, placeholder="e.g. Urgent! Pay 1000 rupees immediately to update your bank KYC or your account will be blocked.")
 
+# 💡 Quick Demo Input Buttons for Easy Testing
+st.write("💡 **Quick Demo Inputs (Click to test):**")
+col_d1, col_d2, col_d3 = st.columns(3)
+
+if col_d1.button("🚨 Test Scam SMS"):
+    st.session_state["user_input_val"] = "அவசரம்! உங்கள் வங்கியின் KYC புதுப்பிக்க OTP மற்றும் கணக்கு விவரங்களை உடனடியாக அனுப்பவும்."
+
+if col_d2.button("⚠️ Test Lottery Scam"):
+    st.session_state["user_input_val"] = "Urgent! You won $10,000 lottery. Pay 1000 INR processing fee immediately to claim."
+
+if col_d3.button("✅ Test Safe Message"):
+    st.session_state["user_input_val"] = "Hi team, please find the attached report for today's meeting."
+
+# Input Text Area (Pre-filled if Demo Button Clicked)
+input_default = st.session_state.get("user_input_val", "")
+user_input = st.text_area(t["input_label"], value=input_default, height=100)
+
+# Analyze Action
 if st.button(t["analyze_btn"], type="primary"):
     if user_input.strip():
         # Mock Rule-Engine Logic for Detection
@@ -176,15 +193,12 @@ if st.button(t["analyze_btn"], type="primary"):
         
         if final_score < 30:
             risk_lvl = t["safe"]
-            color = "green"
             action = t["action_safe"]
         elif final_score < 70:
             risk_lvl = t["medium"]
-            color = "orange"
             action = "Verify sender before sharing information."
         else:
             risk_lvl = t["high"]
-            color = "red"
             action = t["action_high"]
 
         st.subheader("Analysis Results")
